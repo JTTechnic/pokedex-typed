@@ -30,6 +30,15 @@ class BaseManager {
 	async fetch(route) {
 		return (await fetch(`${this.client.apiRoute}/${this.endpoint}/${route ?? ""}`)).json();
 	}
+
+	async fetchAmount() {
+		if (!this._amount) {
+			Object.defineProperty(this, "_amount", {
+				value: (await (await fetch(`${this.client.apiRoute}/${this.endpoint}?limit=1`)).json()).count
+			});
+		}
+		return this._amount;
+	}
 }
 
 module.exports = BaseManager;
