@@ -105,7 +105,9 @@ declare abstract class Manager<T = any> {
 	public readonly client: Client;
 	public readonly cache: Collection<string, T>;
 	private readonly endpoint: string;
+	private readonly _amount: number;
 	public constructor(client: Client, endpoint: string);
+	public fetchAmount(): Promise<number>;
 }
 
 declare abstract class BaseManager<T = any> extends Manager<T> {
