@@ -108,6 +108,7 @@ declare abstract class Manager<T = any> {
 	private readonly _amount: number;
 	public constructor(client: Client, endpoint: string);
 	public fetchAmount(): Promise<number>;
+	public fetchRandom(): Promise<T>;
 }
 
 declare abstract class BaseManager<T = any> extends Manager<T> {

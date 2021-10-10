@@ -2,6 +2,7 @@
 
 const {Collection} = require("@discordjs/collection");
 const fetch = require("node-fetch");
+const Model = require("../Model");
 
 /** @abstract */
 class BaseManager {
@@ -18,7 +19,7 @@ class BaseManager {
 		 * @private
 		 * @readonly
 		 */
-		Object.defineProperty(this, "endpoint", {value: endpoint});
+		Object.defineProperty(this, "endpoint", {value: `${client.apiRoute}/${endpoint}`});
 		/**
 		 * @name Manager#cache
 		 * @type {Collection}
@@ -28,13 +29,27 @@ class BaseManager {
 	}
 
 	async fetch(route) {
-		return (await fetch(`${this.client.apiRoute}/${this.endpoint}/${route ?? ""}`)).json();
+		return (await fetch(`${this.endpoint}/${route ?? ""}`)).json();
+	}
+
+	async fetchRandom() {
+		const {url} = (
+				await (
+					await fetch(
+						`${this.endpoint}?limit=1&offset=${Math.floor(Math.random() * (await this.fetchAmount()))}`
+					)
+				).json()
+			).results[0],
+			id = url.replace(`${this.endpoint}/`, "").replace("/", ""),
+			result = this.cache.get(id) ?? new Model(await this.fetch(id));
+		this.cache.set(id, result);
+		return result;
 	}
 
 	async fetchAmount() {
 		if (!this._amount) {
 			Object.defineProperty(this, "_amount", {
-				value: (await (await fetch(`${this.client.apiRoute}/${this.endpoint}?limit=1`)).json()).count
+				value: (await (await fetch(`${this.endpoint}?limit=1`)).json()).count
 			});
 		}
 		return this._amount;

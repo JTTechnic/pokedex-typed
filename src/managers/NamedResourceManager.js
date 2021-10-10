@@ -7,10 +7,10 @@ const Model = require("../Model");
 class NamedResourceManager extends BaseManager {
 	async fetch(idOrName, endpoint) {
 		// eslint-disable-next-line no-shadow
-		let model = this.cache.find(model => model.id === idOrName || model.name === idOrName);
+		let model = this.cache.get(idOrName) ?? this.cache.find(model => model.name === idOrName);
 		if (!model) {
 			model = new Model(await super.fetch(`${idOrName}${endpoint ? `/${endpoint}` : ""}`));
-			this.cache.set(idOrName, model);
+			this.cache.set(model.id, model);
 		}
 		return model;
 	}
