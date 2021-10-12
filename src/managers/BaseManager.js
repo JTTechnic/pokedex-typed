@@ -46,6 +46,14 @@ class BaseManager {
 		return result;
 	}
 
+	async fetchAll(limit = 100, offset = 0) {
+		return Promise.all(
+			(await (await fetch(`${this.endpoint}?limit=${limit}&offset=${offset}`)).json()).results.map(result =>
+				this.fetch(result.url.replace(this.endpoint, "").replaceAll("/", ""))
+			)
+		);
+	}
+
 	async fetchAmount() {
 		if (!this._amount) {
 			Object.defineProperty(this, "_amount", {
