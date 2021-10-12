@@ -26,6 +26,11 @@ class BaseManager {
 		 * @readonly
 		 */
 		Object.defineProperty(this, "cache", {value: new Collection()});
+		/**
+		 * @type {boolean}
+		 * @private
+		 */
+		this.fetchedAll = false;
 	}
 
 	async fetch(route) {
@@ -47,11 +52,16 @@ class BaseManager {
 	}
 
 	async fetchAll(limit = 100, offset = 0) {
-		return Promise.all(
-			(await (await fetch(`${this.endpoint}?limit=${limit}&offset=${offset}`)).json()).results.map(result =>
-				this.fetch(result.url.replace(this.endpoint, "").replaceAll("/", ""))
-			)
-		);
+		if (!this.fetchedAll) {
+			const results = [];
+			for (const result of (await (await fetch(`${this.endpoint}?limit=${limit}&offset=${offset}`)).json())
+				.results) {
+				results.push(this.fetch(result.url.replace(this.endpoint, "").replaceAll("/", "")));
+			}
+			await Promise.all(results);
+			this.fetchedAll = true;
+		}
+		return this.cache.values();
 	}
 
 	async fetchAmount() {

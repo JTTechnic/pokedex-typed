@@ -4,7 +4,11 @@ const {Client} = require("../src");
 
 const client = new Client();
 (async () => {
-	console.log(await client.berries.fetchAll(1));
-	console.log(await client.games.generations.fetchAll(1));
-	console.log(await client.machines.fetchAll(1));
+	// eslint-disable-next-line semi-spacing
+	for (let i = 0; i < 2; i++) {
+		console.time("fetch");
+		// eslint-disable-next-line no-await-in-loop
+		console.log(await client.pokemon.fetchAll(1));
+		console.timeEnd("fetch");
+	}
 })();
